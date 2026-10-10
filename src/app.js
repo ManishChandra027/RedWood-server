@@ -2,6 +2,7 @@ import "dotenv/config";
 import express from "express";
 import cors from "cors";
 import cookieParser from "cookie-parser";
+import authRoutes from "./routes/auth.routes";
 // import errorHandler from "./middleware/error.middleware";
 
 const app = express();
@@ -32,11 +33,8 @@ app.get("/api/v1/testing", (req, res) => {
     });
 });
 
-
-
 // http://localhost:8000/api/v1/auth/
-// app.use("/api/v1/auth", authRoutes);
-
+app.use("/api/v1/auth", authRoutes);
 
 // app.use(errorHandler);
 

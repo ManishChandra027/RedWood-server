@@ -1,0 +1,21 @@
+
+class ApiError extends Error {
+    constructor(statusCode, message, issues = []) {
+        super(message);
+
+        this.statusCode =
+            Number.isInteger(statusCode) &&
+            statusCode >= 400 &&
+            statusCode <= 599
+                ? statusCode
+                : 500;
+
+        this.success = false;
+        this.issues = issues;
+        this.name = "ApiError";
+
+        Error.captureStackTrace(this, this.constructor);
+    }
+}
+
+export default ApiError;
