@@ -2,8 +2,9 @@ import "dotenv/config";
 import express from "express";
 import cors from "cors";
 import cookieParser from "cookie-parser";
-import authRoutes from "./routes/auth.routes";
-// import errorHandler from "./middleware/error.middleware";
+import authRoutes from "./routes/auth.routes.js";
+import userRoutes from "./routes/user.routes.js";
+import errorHandler from "./middleware/error.middleware.js";
 
 const app = express();
 
@@ -35,7 +36,8 @@ app.get("/api/v1/testing", (req, res) => {
 
 // http://localhost:8000/api/v1/auth/
 app.use("/api/v1/auth", authRoutes);
+app.use("/api/v1/users", userRoutes);
 
-// app.use(errorHandler);
+app.use(errorHandler);
 
 export default app;

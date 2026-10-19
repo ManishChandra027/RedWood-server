@@ -1,16 +1,26 @@
-import * as authService from "../services/auth.service";
-import ApiResponse from "../utils/ApiResponse";
-import asyncHandler from "../utils/asyncHandler";
+import * as authService from "../services/auth.service.js";
+import ApiResponse from "../utils/ApiResponse.js";
+import ApiError from "../utils/ApiError.js";
+import asyncHandler from "../utils/asyncHandler.js";
+
+const isProduction = process.env.NODE_ENV === "production";
 
 const cookieOptions = {
     httpOnly: true,
-    secure: true,
-    // sameSite: "lax",
+    secure: isProduction,
+    sameSite: "lax",
+    path: "/",
 };
 
+const resetCookieOptions = {
+    ...cookieOptions,
+    maxAge: 10 * 60 * 1000, // 10 minutes
+};
 
+// REGISTER
 const registerUser = asyncHandler(async (req, res) => {
     const { email, password, fullName } = req.body;
+
     const { user, accessToken, refreshToken } = await authService.registerUser({
         email,
         password,
@@ -21,18 +31,10 @@ const registerUser = asyncHandler(async (req, res) => {
         .status(201)
         .cookie("accessToken", accessToken, cookieOptions)
         .cookie("refreshToken", refreshToken, cookieOptions)
-        .json(
-            new ApiResponse(
-                201,
-                {
-                    user,
-                    accessToken,
-                },
-                "User registered successfully"
-            )
-        );
+        .json(new ApiResponse(201, { user }, "User registered successfully"));
 });
 
+// LOGIN
 const loginUser = asyncHandler(async (req, res) => {
     const { identifier, password } = req.body;
 
@@ -52,6 +54,7 @@ const loginUser = asyncHandler(async (req, res) => {
         .json(new ApiResponse(200, { user }, "User logged in successfully"));
 });
 
+// LOGOUT
 const logoutUser = asyncHandler(async (req, res) => {
     await authService.logoutUser(req.user._id);
 
@@ -62,39 +65,25 @@ const logoutUser = asyncHandler(async (req, res) => {
         .json(new ApiResponse(200, null, "User logged out successfully"));
 });
 
-const getCurrentUser = asyncHandler(async (req, res) => {
-    const userInfo = await authService.getCurrentUser({
-        userId: req.user._id,
-    });
+// CURRENT USER
 
-    return res
-        .status(200)
-        .json(
-            new ApiResponse(200, userInfo, "Current user fetched successfully")
-        );
-});
 
+// REFRESH ACCESS TOKEN
 const refreshAccessToken = asyncHandler(async (req, res) => {
-    const userId = req.user._id;
-    const { accessToken, refreshToken } =
-        await authService.refreshAccessToken(userId);
+    const { accessToken, refreshToken } = await authService.refreshAccessToken(
+        req.user._id
+    );
 
     return res
         .status(200)
         .cookie("accessToken", accessToken, cookieOptions)
         .cookie("refreshToken", refreshToken, cookieOptions)
         .json(
-            new ApiResponse(
-                200,
-                {
-                    accessToken,
-                    refreshToken,
-                },
-                "Access token refreshed successfully"
-            )
+            new ApiResponse(200, null, "Access token refreshed successfully")
         );
 });
 
+// CHANGE PASSWORD
 const updatePassword = asyncHandler(async (req, res) => {
     const { currentPassword, updatedPassword } = req.body;
 
@@ -106,9 +95,18 @@ const updatePassword = asyncHandler(async (req, res) => {
 
     return res
         .status(200)
-        .json(new ApiResponse(200, null, "Password changed successfully"));
+        .clearCookie("accessToken", cookieOptions)
+        .clearCookie("refreshToken", cookieOptions)
+        .json(
+            new ApiResponse(
+                200,
+                null,
+                "Password changed successfully. Please log in again."
+            )
+        );
 });
 
+// REQUEST PASSWORD RESET OTP
 const forgotPassword = asyncHandler(async (req, res) => {
     const { email } = req.body;
 
@@ -125,8 +123,9 @@ const forgotPassword = asyncHandler(async (req, res) => {
         );
 });
 
+// VERIFY PASSWORD RESET OTP
 const verifyPasswordResetOtp = asyncHandler(async (req, res) => {
-    const { otp, email } = req.body;
+    const { email, otp } = req.body;
 
     const rawToken = await authService.verifyPasswordResetOtp({
         email,
@@ -139,6 +138,7 @@ const verifyPasswordResetOtp = asyncHandler(async (req, res) => {
         .json(new ApiResponse(200, null, "OTP verified successfully"));
 });
 
+// RESET PASSWORD USING RESET TOKEN COOKIE
 const resetPassword = asyncHandler(async (req, res) => {
     const { newPassword } = req.body;
     const rawToken = req.cookies?.passwordResetToken;
@@ -160,9 +160,16 @@ const resetPassword = asyncHandler(async (req, res) => {
         .clearCookie("passwordResetToken", cookieOptions)
         .clearCookie("accessToken", cookieOptions)
         .clearCookie("refreshToken", cookieOptions)
-        .json(new ApiResponse(200, null, "Password reset successfully"));
+        .json(
+            new ApiResponse(
+                200,
+                null,
+                "Password reset successfully. Please log in again."
+            )
+        );
 });
 
+// REQUEST EMAIL VERIFICATION OTP
 const requestEmailVerification = asyncHandler(async (req, res) => {
     await authService.requestEmailVerification(req.user._id);
 
@@ -172,25 +179,31 @@ const requestEmailVerification = asyncHandler(async (req, res) => {
             new ApiResponse(
                 200,
                 null,
-                "If an email exists, a verify link has been sent."
+                "Verification code sent if your email requires verification."
             )
         );
 });
 
+// VERIFY EMAIL OTP
 const verifyEmail = asyncHandler(async (req, res) => {
     const { email, otp } = req.body;
 
     await authService.verifyEmail({ email, otp });
 
-    return res.status(200).json(
-        new ApiResponse(
-            200,
-            null,
-            "Email verified successfully"
-        )
-    );
+    return res
+        .status(200)
+        .json(new ApiResponse(200, null, "Email verified successfully"));
 });
 
-
-
-export { registerUser, loginUser };
+export {
+    registerUser,
+    loginUser,
+    logoutUser,
+    refreshAccessToken,
+    updatePassword,
+    forgotPassword,
+    verifyPasswordResetOtp,
+    resetPassword,
+    requestEmailVerification,
+    verifyEmail,
+};

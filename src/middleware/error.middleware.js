@@ -20,34 +20,41 @@ const errorHandler = (err, req, res, next) => {
         message = err.details.map((detail) => detail.message).join(", ");
     }
 
+    // MongoDB duplicate key error
+    else if (err.code === 11000) {
+        statusCode = 409;
+
+        const field = Object.keys(err.keyPattern ?? {})[0];
+
+        const messages = {
+            email: "Email is already registered.",
+            phone: "Phone number is already registered().",
+        };
+
+        message = messages[field] ?? "A record with this value already exists.";
+    }
+
     // Mongoose invalid ObjectId / CastError
-    if (err.name === "CastError") {
+    else if (err.name === "CastError") {
         statusCode = 400;
         message = "Invalid resource identifier.";
     }
 
-    // Mongoose duplicate key error
-    if (err.code === 11000) {
-        statusCode = 409;
-        message = "A record with this value already exists.";
-    }
-
     // Mongoose schema validation errors
-    if (err.name === "ValidationError") {
+    else if (err.name === "ValidationError") {
         statusCode = 400;
         message = Object.values(err.errors)
             .map((error) => error.message)
             .join(", ");
     }
 
-    // Never expose unexpected internal errors in production
+    // Hide unexpected internal errors in production
     if (statusCode >= 500) {
         console.error(err);
 
-        message =
-            process.env.NODE_ENV === "production"
-                ? "Internal server error. Please try again later."
-                : message;
+        if (process.env.NODE_ENV === "production") {
+            message = "Internal server error. Please try again later.";
+        }
     }
 
     message = formatMessage(message);

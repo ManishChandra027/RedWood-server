@@ -1,6 +1,7 @@
 import mongoose, { Schema, model } from "mongoose";
 import jwt from "jsonwebtoken";
 import bcrypt from "bcrypt";
+
 const userSchema = new Schema(
     {
         fullName: {
@@ -38,7 +39,8 @@ const userSchema = new Schema(
         phone: {
             type: String,
             trim: true,
-            default: "",
+            unique: true,
+            sparse: true,
         },
 
         role: {

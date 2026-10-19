@@ -1,7 +1,10 @@
-import User from "../models/user.model";
-import generateOtp from "../utils/generateOtp";
-import generateTemporaryToken from "../utils/generateTemporaryToken";
+import User from "../models/user.model.js";
+import generateOtp from "../utils/generateOtp.js";
+import generateTemporaryToken from "../utils/generateTemporaryToken.js";
 import { createHash } from "node:crypto";
+import sendEmail from "../utils/sendEmail.js";
+import ApiError from "../utils/ApiError.js";
+
 const generateAccessAndRefreshTokens = async (userId) => {
     try {
         const user = await User.findById(userId).select("+refreshToken");
@@ -112,22 +115,7 @@ const logoutUser = async (userId) => {
     });
 };
 
-const getCurrentUser = async ({ userId }) => {
-    const user = await User.findById(userId).select(
-        "fullName email phone avatar role isVerified"
-    );
 
-    if (!user) {
-        throw new ApiError(404, "User not found");
-    }
-
-    const defaultAddress = await Address.findOne({
-        user: userId,
-        isDefault: true,
-    });
-
-    return { user, defaultAddress };
-};
 const refreshAccessToken = async (userId) => {
     if (!userId) {
         throw new ApiError(400, "User ID is required to refresh access token");
@@ -169,13 +157,10 @@ const updatePassword = async ({ userId, currentPassword, updatedPassword }) => {
 };
 
 const forgotPassword = async (email) => {
-    if (!email) {
-        throw new ApiError(400, "Email address is required.");
-    }
+    
+    
 
-    const normalizedEmail = email.trim().toLowerCase();
-
-    const user = await User.findOne({ email: normalizedEmail });
+    const user = await User.findOne({ email });
 
     // Do not reveal whether an email is registered.
     if (!user) {
@@ -242,9 +227,7 @@ const forgotPassword = async (email) => {
 };
 
 const verifyPasswordResetOtp = async ({ email, otp }) => {
-    if (!email || !otp) {
-        throw new ApiError(400, "Email and OTP are required.");
-    }
+   
 
     const user = await User.findOne({
         email: email.trim().toLowerCase(),
@@ -270,8 +253,8 @@ const verifyPasswordResetOtp = async ({ email, otp }) => {
 };
 
 const resetPassword = async ({ rawToken, newPassword }) => {
-    if (!rawToken || !newPassword) {
-        throw new ApiError(400, "Reset token and new password are required.");
+    if (!rawToken) {
+        throw new ApiError(400, "Reset token  are required.");
     }
 
     const hashedToken = createHash("sha256").update(rawToken).digest("hex");
@@ -366,13 +349,6 @@ const requestEmailVerification = async (userId) => {
 };
 
 const verifyEmail = async ({ email, otp }) => {
-    if (!email || !otp) {
-        throw new ApiError(400, "Email and OTP are required.");
-    }
-    // todo: add otp validate in all or in joi
-    if (!/^\d{6}$/.test(otp)) {
-        throw new ApiError(400, "OTP must be 6 digits.");
-    }
 
     const user = await User.findOne({
         email: email.trim().toLowerCase(),
@@ -395,4 +371,15 @@ const verifyEmail = async ({ email, otp }) => {
     return true;
 };
 
-export { registerUser, getCurrentUser };
+export {
+    registerUser,
+    loginUser,
+    logoutUser,
+    updatePassword,
+    forgotPassword,
+    verifyPasswordResetOtp,
+    resetPassword,
+    requestEmailVerification,
+    verifyEmail,
+    refreshAccessToken,
+};
