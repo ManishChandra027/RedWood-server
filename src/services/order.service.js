@@ -147,14 +147,19 @@ const getUserOrder = async (userId, orderId) => {
     return order;
 };
 
-const cancelUserOrder = async (userId, orderId) => {
+const cancelPlacedOrder = async ({ orderId, userId }) => {
+    const filter = { _id: orderId, status: "placed" };
+    if (userId) filter.user = userId;
+
     const order = await Order.findOneAndUpdate(
-        { _id: orderId, user: userId, status: "placed" },
+        filter,
         { $set: { status: "cancelled", cancelledAt: new Date() } },
         { new: true }
     );
     if (!order) {
-        const existing = await Order.exists({ _id: orderId, user: userId });
+        const existingFilter = { _id: orderId };
+        if (userId) existingFilter.user = userId;
+        const existing = await Order.exists(existingFilter);
         if (!existing) throw new ApiError(404, "Order not found.");
         throw new ApiError(409, "This order can no longer be cancelled.");
     }
@@ -166,8 +171,10 @@ const cancelUserOrder = async (userId, orderId) => {
                 .map((item) => ({ productId: item.product, quantity: item.quantity }))
         );
     } catch (error) {
+        const rollbackFilter = { _id: order._id, status: "cancelled" };
+        if (userId) rollbackFilter.user = userId;
         await Order.updateOne(
-            { _id: order._id, user: userId, status: "cancelled" },
+            rollbackFilter,
             { $set: { status: "placed", cancelledAt: null } }
         );
         throw error;
@@ -176,4 +183,10 @@ const cancelUserOrder = async (userId, orderId) => {
     return order;
 };
 
-export { cancelUserOrder, createOrderFromCart, getUserOrder, getUserOrders };
+const cancelUserOrder = async (userId, orderId) =>
+    cancelPlacedOrder({ userId, orderId });
+
+const cancelAdminOrder = async (orderId) =>
+    cancelPlacedOrder({ orderId });
+
+export { cancelAdminOrder, cancelUserOrder, createOrderFromCart, getUserOrder, getUserOrders };

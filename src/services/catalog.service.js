@@ -32,7 +32,7 @@ const toProductResponse = (product) => {
         discount,
         rating: product.rating,
         image: firstImage?.url ?? "",
-        images: product.images,
+        images: (product.images ?? []).map(({ url, alt }) => ({ url, alt })),
         category: category
             ? {
                   id: category._id.toString(),

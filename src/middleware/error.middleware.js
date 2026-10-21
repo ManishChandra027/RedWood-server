@@ -1,4 +1,5 @@
 import { logServerError } from "../utils/logger.js";
+import multer from "multer";
 
 const formatMessage = (message) => {
     if (typeof message !== "string" || !message.trim()) {
@@ -15,6 +16,13 @@ const formatMessage = (message) => {
 const errorHandler = (err, req, res, next) => {
     let statusCode = err.statusCode || 500;
     let message = err.message || "Internal server error.";
+
+    if (err instanceof multer.MulterError) {
+        statusCode = err.code === "LIMIT_FILE_SIZE" ? 413 : 400;
+        message = err.code === "LIMIT_FILE_SIZE"
+            ? "Image must not exceed 5 MB."
+            : "Invalid image upload. Use up to 5 JPEG, PNG, or WebP images.";
+    }
 
     // Joi validation errors
     if (err.isJoi) {

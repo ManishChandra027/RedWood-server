@@ -4,6 +4,7 @@ const productImageSchema = new Schema(
     {
         url: { type: String, required: true, trim: true },
         alt: { type: String, trim: true, default: "" },
+        public_id: { type: String, trim: true, default: "" },
     },
     { _id: false }
 );

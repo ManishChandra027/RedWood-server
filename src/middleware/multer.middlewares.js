@@ -1,9 +1,12 @@
 import multer from "multer";
 import path from "node:path";
+import fs from "node:fs";
+import ApiError from "../utils/ApiError.js";
 
 const storage = multer.diskStorage({
     destination: (req, file, cb) => {
-        cb(null, "./public/temp");
+        const destination = "./public/temp";
+        fs.mkdir(destination, { recursive: true }, (error) => cb(error, destination));
     },
 
     filename: (req, file, cb) => {
@@ -22,7 +25,7 @@ const fileFilter = (req, file, cb) => {
         return cb(null, true);
     }
 
-    cb(new Error("Only JPEG, PNG, and WebP images are allowed."));
+    cb(new ApiError(400, "Only JPEG, PNG, and WebP images are allowed."));
 };
 
 export const upload = multer({
