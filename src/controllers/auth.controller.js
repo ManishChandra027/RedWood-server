@@ -56,6 +56,18 @@ const loginUser = asyncHandler(async (req, res) => {
 
 // LOGOUT
 const logoutUser = asyncHandler(async (req, res) => {
+    // if (!req.user || !req.user._id) {
+    //     return res
+    //         .status(201)
+    //         .json(
+    //             new ApiResponse(
+    //                 401,
+    //                 null,
+    //                 "User is already logged out or not authenticated"
+    //             )
+    //         );
+    // }
+
     await authService.logoutUser(req.user._id);
 
     return res
@@ -66,7 +78,6 @@ const logoutUser = asyncHandler(async (req, res) => {
 });
 
 // CURRENT USER
-
 
 // REFRESH ACCESS TOKEN
 const refreshAccessToken = asyncHandler(async (req, res) => {
@@ -97,6 +108,7 @@ const updatePassword = asyncHandler(async (req, res) => {
         .status(200)
         .clearCookie("accessToken", cookieOptions)
         .clearCookie("refreshToken", cookieOptions)
+        .clearCookie("passwordResetToken", cookieOptions)
         .json(
             new ApiResponse(
                 200,
@@ -114,6 +126,7 @@ const forgotPassword = asyncHandler(async (req, res) => {
 
     return res
         .status(200)
+        .clearCookie("passwordResetToken", cookieOptions)
         .json(
             new ApiResponse(
                 200,
@@ -188,7 +201,7 @@ const requestEmailVerification = asyncHandler(async (req, res) => {
 const verifyEmail = asyncHandler(async (req, res) => {
     const { email, otp } = req.body;
 
-    await authService.verifyEmail({ email, otp });
+    await authService.verifyEmail({ userId: req.user._id, email, otp });
 
     return res
         .status(200)

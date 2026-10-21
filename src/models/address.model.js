@@ -58,4 +58,13 @@ const addressSchema = new Schema(
     { timestamps: true }
 );
 
+addressSchema.index(
+    { user: 1 },
+    {
+        unique: true,
+        partialFilterExpression: { isDefault: true },
+        name: "one_default_address_per_user",
+    }
+);
+
 export const Address = model("Address", addressSchema);

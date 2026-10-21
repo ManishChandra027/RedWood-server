@@ -1,11 +1,12 @@
 import User from "../models/user.model.js";
-import { Address } from "../models/address.model.js";
 import ApiError from "../utils/ApiError.js";
 import {
     uploadOnCloudinary,
     deleteFromCloudinary,
 } from "../utils/cloudenary.js";
 import * as authService from "./auth.service.js";
+import { getDefaultAddressForUser } from "./address.service.js";
+import { logServiceError } from "../utils/logger.js";
 
 const getCurrentUser = async ({ userId }) => {
     const user = await User.findById(userId).select(
@@ -16,10 +17,7 @@ const getCurrentUser = async ({ userId }) => {
         throw new ApiError(404, "User not found.");
     }
 
-    const defaultAddress = await Address.findOne({
-        user: userId,
-        isDefault: true,
-    });
+    const defaultAddress = await getDefaultAddressForUser(userId);
 
     return { user, defaultAddress };
 };
@@ -128,7 +126,7 @@ const updateAccountDetails = async ({ userId, body, file }) => {
         if (file) {
             const uploaded = await uploadOnCloudinary(file.path, {
                 mimeType: file.mimetype,
-                folder: "JournalPress/avatars",
+                folder: "RareWolf/avatars",
             });
 
             if (!uploaded?.url || !uploaded?.public_id) {
@@ -151,10 +149,7 @@ const updateAccountDetails = async ({ userId, body, file }) => {
             try {
                 await deleteFromCloudinary(newAvatar.public_id);
             } catch (cleanupError) {
-                console.error(
-                    "Failed to clean up new avatar:",
-                    cleanupError.message
-                );
+                logServiceError("user.new_avatar_cleanup_failed", cleanupError);
             }
         }
 
@@ -167,7 +162,7 @@ const updateAccountDetails = async ({ userId, body, file }) => {
             await deleteFromCloudinary(oldAvatarPublicId);
         } catch (error) {
             // The account update succeeded; log cleanup failure separately.
-            console.error("Failed to delete old avatar:", error.message);
+            logServiceError("user.old_avatar_cleanup_failed", error);
         }
     }
 
@@ -177,7 +172,7 @@ const updateAccountDetails = async ({ userId, body, file }) => {
         try {
             await authService.requestEmailVerification(user._id);
         } catch (error) {
-            console.error("Email verification request failed:", error.message);
+            logServiceError("user.email_verification_request_failed", error);
         }
     }
 

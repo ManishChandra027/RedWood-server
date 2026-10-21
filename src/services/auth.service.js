@@ -3,6 +3,7 @@ import generateOtp from "../utils/generateOtp.js";
 import generateTemporaryToken from "../utils/generateTemporaryToken.js";
 import { createHash } from "node:crypto";
 import sendEmail from "../utils/sendEmail.js";
+import { logServiceError } from "../utils/logger.js";
 import ApiError from "../utils/ApiError.js";
 
 const generateAccessAndRefreshTokens = async (userId) => {
@@ -65,8 +66,12 @@ const registerUser = async ({ email, password, fullName }) => {
     if (!registeredUser) {
         throw new ApiError(500, "Registration failed. Please try again.");
     }
-    // TODO: add email ver
-    // await requestEmailVerification(user._id);
+    try {
+        await requestEmailVerification(user._id);
+    } catch (error) {
+        // Keep the account usable; the signed-in user can request another code.
+        logServiceError("auth.registration_verification_email_failed", error);
+    }
 
     return {
         user: registeredUser,
@@ -93,7 +98,7 @@ const loginUser = async ({ query, password }) => {
     );
 
     const loggedInUser = await User.findById(user._id).select(
-        "fullName email phone avatar role isVerified"
+        "fullName email phone avatar role isVerified isPhoneVerified"
     );
 
     if (!loggedInUser) {
@@ -150,6 +155,11 @@ const updatePassword = async ({ userId, currentPassword, updatedPassword }) => {
     }
 
     user.password = updatedPassword;
+    user.refreshToken = undefined;
+    user.passwordResetOtp = undefined;
+    user.passwordResetOtpExpires = undefined;
+    user.passwordResetToken = undefined;
+    user.passwordResetTokenExpires = undefined;
 
     await user.save({
         validateBeforeSave: false,
@@ -171,6 +181,8 @@ const forgotPassword = async (email) => {
 
     user.passwordResetOtp = otp;
     user.passwordResetOtpExpires = Date.now() + 10 * 60 * 1000;
+    user.passwordResetToken = undefined;
+    user.passwordResetTokenExpires = undefined;
 
     await user.save();
 
@@ -188,7 +200,7 @@ const forgotPassword = async (email) => {
 
                     <p>
                         We received a request to reset your
-                        RedWood password.
+                        RareWolf password.
                     </p>
 
                     <p>Your password reset OTP is:</p>
@@ -217,7 +229,7 @@ const forgotPassword = async (email) => {
 
         await user.save({ validateBeforeSave: false });
 
-        console.error("Password reset email failed:", emailError);
+        logServiceError("auth.password_reset_email_failed", emailError);
 
         throw new ApiError(
             500,
@@ -311,7 +323,7 @@ const requestEmailVerification = async (userId) => {
                     <h2>Email Verification</h2>
 
                     <p>
-                        Thank you for registering on JournalPress.
+                        Thank you for registering on RareWolf.
                         Use the OTP below to verify your email address.
                     </p>
 
@@ -339,7 +351,7 @@ const requestEmailVerification = async (userId) => {
 
         await user.save({ validateBeforeSave: false });
 
-        console.error("Email verification failed:", emailError);
+        logServiceError("auth.email_verification_failed", emailError);
 
         throw new ApiError(
             500,
@@ -348,9 +360,10 @@ const requestEmailVerification = async (userId) => {
     }
 };
 
-const verifyEmail = async ({ email, otp }) => {
+const verifyEmail = async ({ userId, email, otp }) => {
 
     const user = await User.findOne({
+        _id: userId,
         email: email.trim().toLowerCase(),
         emailVerificationOtp: otp,
         emailVerificationExpires: {

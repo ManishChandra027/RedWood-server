@@ -1,3 +1,5 @@
+import { logServerError } from "../utils/logger.js";
+
 const formatMessage = (message) => {
     if (typeof message !== "string" || !message.trim()) {
         return "Something went wrong. Please try again.";
@@ -50,7 +52,7 @@ const errorHandler = (err, req, res, next) => {
 
     // Hide unexpected internal errors in production
     if (statusCode >= 500) {
-        console.error(err);
+        logServerError(err, req, statusCode);
 
         if (process.env.NODE_ENV === "production") {
             message = "Internal server error. Please try again later.";
@@ -65,6 +67,7 @@ const errorHandler = (err, req, res, next) => {
         ...(process.env.NODE_ENV !== "production" && {
             stack: err.stack,
         }),
+        ...(req.requestId && { requestId: req.requestId }),
         issues: err.issues || [],
     });
 };

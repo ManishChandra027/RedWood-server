@@ -16,9 +16,8 @@ const validate = (schema, property = "body") => {
             );
         }
 
-        // req.validated ??= {};
-
-        // req.validated[property] = value;
+        req.validated ??= {};
+        req.validated[property] = value;
 
         if (property === "body") {
             req.body = value;

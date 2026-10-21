@@ -1,6 +1,7 @@
 import { v2 as cloudinary } from "cloudinary";
 import fs from "node:fs/promises";
 import ApiError from "./ApiError.js";
+import { logServiceError } from "./logger.js";
 
 cloudinary.config({
     cloud_name: process.env.CLOUDINARY_CLOUD_NAME,
@@ -50,10 +51,7 @@ export const uploadOnCloudinary = async (
             throw error;
         }
 
-        console.error("Cloudinary upload failed:", {
-            message: error.message,
-            http_code: error.http_code,
-        });
+        logServiceError("cloudinary.upload_failed", error);
 
         throw new ApiError(502, "Image upload failed. Please try again later.");
     } finally {
@@ -62,7 +60,7 @@ export const uploadOnCloudinary = async (
             await fs.unlink(localFilePath);
         } catch (error) {
             if (error.code !== "ENOENT") {
-                console.error("Temporary file cleanup failed:", error.message);
+                logServiceError("cloudinary.temporary_file_cleanup_failed", error);
             }
         }
     }
@@ -84,7 +82,7 @@ export const deleteFromCloudinary = async (publicId) => {
 
         return result;
     } catch (error) {
-        console.error("Cloudinary deletion failed:", error.message);
+        logServiceError("cloudinary.delete_failed", error);
 
         throw new ApiError(
             502,

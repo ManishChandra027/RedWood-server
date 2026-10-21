@@ -1,0 +1,124 @@
+{
+    "categories": [
+        {
+            "name": "Fashion",
+            "slug": "fashion",
+            "image": "https://plus.unsplash.com/premium_vector-1682303136986-bd37617f9b75?q=80&w=1039&auto=format&fit=crop&ixlib=rb-4.1.0&ixid=NHwxMjA3fDA%3D"
+        },
+        {
+            "name": "Electronics",
+            "slug": "electronics",
+            "image": "https://plus.unsplash.com/premium_vector-1682303136986-bd37617f9b75?q=80&w=1039&auto=format&fit=crop&ixlib=rb-4.1.0&ixid=NHwxMjA3fDA%3D"
+        },
+        {
+            "name": "Mobiles",
+            "slug": "mobiles",
+            "image": "https://plus.unsplash.com/premium_vector-1682303136986-bd37617f9b75?q=80&w=1039&auto=format&fit=crop&ixlib=rb-4.1.0&ixid=NHwxMjA3fDA%3D"
+        },
+        {
+            "name": "Home & Kitchen",
+            "slug": "home-kitchen",
+            "image": "https://plus.unsplash.com/premium_vector-1682303136986-bd37617f9b75?q=80&w=1039&auto=format&fit=crop&ixlib=rb-4.1.0&ixid=NHwxMjA3fDA%3D"
+        },
+        {
+            "name": "Beauty",
+            "slug": "beauty",
+            "image": "https://plus.unsplash.com/premium_vector-1682303136986-bd37617f9b75?q=80&w=1039&auto=format&fit=crop&ixlib=rb-4.1.0&ixid=NHwxMjA3fDA%3D"
+        },
+        {
+            "name": "Books",
+            "slug": "books",
+            "image": "https://plus.unsplash.com/premium_vector-1682303136986-bd37617f9b75?q=80&w=1039&auto=format&fit=crop&ixlib=rb-4.1.0&ixid=NHwxMjA3fDA%3D"
+        },
+        {
+            "name": "Sports",
+            "slug": "sports",
+            "image": "https://plus.unsplash.com/premium_vector-1682303136986-bd37617f9b75?q=80&w=1039&auto=format&fit=crop&ixlib=rb-4.1.0&ixid=NHwxMjA3fDA%3D"
+        },
+        {
+            "name": "Grocery",
+            "slug": "grocery",
+            "image": "https://plus.unsplash.com/premium_vector-1682303136986-bd37617f9b75?q=80&w=1039&auto=format&fit=crop&ixlib=rb-4.1.0&ixid=NHwxMjA3fDA%3D"
+        }
+    ],
+    "products": [
+        {
+            "name": "Everyday Cotton Crew T-Shirt",
+            "slug": "everyday-cotton-crew-t-shirt",
+            "description": "A soft cotton crew-neck t-shirt for everyday wear. Sample catalogue item; replace its description and image with your product details.",
+            "sub": "Fashion",
+            "price": 799,
+            "mrp": 1199,
+            "discount": 33,
+            "rating": 4.5,
+            "image": "https://plus.unsplash.com/premium_vector-1721148067298-7d4932a39408?q=80&w=880&auto=format&fit=crop&ixlib=rb-4.1.0&ixid=NHwxMjA3fDA%3D",
+            "stock": 24,
+            "isActive": true
+        },
+        {
+            "name": "Wireless Over-Ear Headphones",
+            "slug": "wireless-over-ear-headphones",
+            "description": "Sample wireless over-ear headphones listing for testing product search, product detail and cart stock handling.",
+            "sub": "Electronics",
+            "price": 2499,
+            "mrp": 3499,
+            "discount": 29,
+            "rating": 4.4,
+            "image": "https://plus.unsplash.com/premium_vector-1721148067298-7d4932a39408?q=80&w=880&auto=format&fit=crop&ixlib=rb-4.1.0&ixid=NHwxMjA3fDA%3D",
+            "stock": 12,
+            "isActive": true
+        },
+        {
+            "name": "Everyday 5G Smartphone",
+            "slug": "everyday-5g-smartphone",
+            "description": "Sample 5G smartphone catalogue item with placeholder values. Replace specifications and pricing before using a live store.",
+            "sub": "Mobiles",
+            "price": 16999,
+            "mrp": 19999,
+            "discount": 15,
+            "rating": 4.2,
+            "image": "https://plus.unsplash.com/premium_vector-1721148067298-7d4932a39408?q=80&w=880&auto=format&fit=crop&ixlib=rb-4.1.0&ixid=NHwxMjA3fDA%3D",
+            "stock": 8,
+            "isActive": true
+        },
+        {
+            "name": "Stoneware Dinner Set, 12 Pieces",
+            "slug": "stoneware-dinner-set-12-piece",
+            "description": "Sample 12-piece stoneware dinner set listing. Update the material, contents, images and price to match the actual item.",
+            "sub": "Home & Kitchen",
+            "price": 1999,
+            "mrp": 2799,
+            "discount": 29,
+            "rating": 4.6,
+            "image": "https://plus.unsplash.com/premium_vector-1721148067298-7d4932a39408?q=80&w=880&auto=format&fit=crop&ixlib=rb-4.1.0&ixid=NHwxMjA3fDA%3D",
+            "stock": 15,
+            "isActive": true
+        },
+        {
+            "name": "Hydrating Face Serum, 30 ml",
+            "slug": "hydrating-face-serum-30ml",
+            "description": "Sample skincare listing for catalogue testing. Replace ingredients, usage information and images with verified product information.",
+            "sub": "Beauty",
+            "price": 699,
+            "mrp": 899,
+            "discount": 22,
+            "rating": 4.3,
+            "image": "https://plus.unsplash.com/premium_vector-1721148067298-7d4932a39408?q=80&w=880&auto=format&fit=crop&ixlib=rb-4.1.0&ixid=NHwxMjA3fDA%3D",
+            "stock": 30,
+            "isActive": true
+        },
+        {
+            "name": "The Quiet River, Paperback",
+            "slug": "the-quiet-river-paperback",
+            "description": "Sample paperback book listing. Replace the title, author and publication details with a book you are authorized to sell.",
+            "sub": "Books",
+            "price": 399,
+            "mrp": 499,
+            "discount": 20,
+            "rating": 4.7,
+            "image": "https://plus.unsplash.com/premium_vector-1721148067298-7d4932a39408?q=80&w=880&auto=format&fit=crop&ixlib=rb-4.1.0&ixid=NHwxMjA3fDA%3D",
+            "stock": 40,
+            "isActive": true
+        }
+    ]
+}
